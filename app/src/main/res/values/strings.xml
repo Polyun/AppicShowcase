@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AppicShowcase</string>
+    <string name="action_show_zones">Available Zones</string>
+    <string name="label_zone_activity">Points of interest</string>
 </resources>

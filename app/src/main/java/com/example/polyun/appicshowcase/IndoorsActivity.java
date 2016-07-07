@@ -1,8 +1,11 @@
 package com.example.polyun.appicshowcase;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.customlbs.library.Indoors;
@@ -27,7 +30,7 @@ import static com.customlbs.surface.library.IndoorsSurfaceOverlayUtil.buildingCo
 
 public class IndoorsActivity extends AppCompatActivity implements IndoorsLocationListener{
 
-    private Indoors indoors;
+    //private Indoors indoors;
     private IndoorsSurfaceFragment IndoorsSurfaceFragment;
     private SurfaceState custom_Surface_State       = new SurfaceState();
     IndoorsFactory.Builder indoorsBuilder           = new IndoorsFactory.Builder();
@@ -43,6 +46,37 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         show_indoors();
     }
 
+    /**
+     * Inflate the menu; this adds items to the action bar if it is present.
+     * @param menu menu to inflate
+     * @return true: menu inflated
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    /**
+     * Handles selection of menu item
+     * @param item Selected menu item
+     * @return true in case of main-menu item. else: return value from super-method.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+
+        switch (itemId) {
+            case R.id.action_show_zones:
+                Intent intent = new Intent(this, ZonesActivity.class);
+                //intent.putExtra("ZonesList", getZoneNames());
+                intent.putParcelableArrayListExtra("ZonesList", (ArrayList<Zone>)IndoorsSurfaceFragment.getZones());
+                startActivity(intent);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     public void show_indoors() {
         showToast("Start indoors");
@@ -166,7 +200,13 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     public void enteredZones(List<Zone> list) {
         if (zoneListChanged(list)) {
             for (Zone zone : list) {
-                showToast("Zone name: " + zone.getName() + "\nZone ID: " + zone.getId() +  "\nZone description: " + zone.getDescription());
+                String zoneMessage = "Zone name: " + zone.getName() +
+                        "\nZone ID: " + zone.getId() +
+                        "\nZone description: " + zone.getDescription();
+                for (Coordinate coord: zone.getZonePoints()) {
+                    zoneMessage += "\nCoordinate: x" + coord.x + " y:" + coord.y;
+                }
+                showToast(zoneMessage);
             }
         }
     }
@@ -201,6 +241,17 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     public void onError(IndoorsException e) {
 
     }
+
+    String[] getZoneNames() {
+        List<Zone> zoneList = IndoorsSurfaceFragment.getZones();
+        ArrayList<String> zoneNameList = new ArrayList<String>();
+        for (Zone zone: zoneList) {
+            zoneNameList.add(zone.getName());
+        }
+
+        return zoneNameList.toArray(new String[zoneNameList.size()]);
+    }
+
 
     void showToast(String text)
     {
