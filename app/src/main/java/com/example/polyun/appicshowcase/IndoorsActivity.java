@@ -31,6 +31,7 @@ import static com.customlbs.surface.library.IndoorsSurfaceOverlayUtil.buildingCo
 public class IndoorsActivity extends AppCompatActivity implements IndoorsLocationListener{
 
     //private Indoors indoors;
+    private static Long BuildingID;
     private IndoorsSurfaceFragment IndoorsSurfaceFragment;
     private SurfaceState custom_Surface_State       = new SurfaceState();
     IndoorsFactory.Builder indoorsBuilder           = new IndoorsFactory.Builder();
@@ -42,7 +43,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_indoors);
-
+        BuildingID = getIntent().getExtras().getLong("Building_ID");
         show_indoors();
     }
 
@@ -95,7 +96,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 
         // TODO: replace 12345 with the id of the building you uploaded to
         // our cloud using the MMT
-        indoorsBuilder.setBuildingId((long) 783306659);
+        indoorsBuilder.setBuildingId(BuildingID);
         showToast("BuildingID loaded and Interaction Listener loaded");
         //Toast.makeText(getApplicationContext(), "BuildingID loaded", Toast.LENGTH_SHORT).show();
 
