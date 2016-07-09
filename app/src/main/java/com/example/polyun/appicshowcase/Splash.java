@@ -25,7 +25,7 @@ public class Splash extends Activity {
 
     private BluetoothAdapter BTAdapter;
 
-    private static Long building_id = (long) 0;
+    private static Long building_id = null;
 
     private List<DeviceItem> mAdapter;
 
@@ -77,7 +77,7 @@ public class Splash extends Activity {
                         BTAdapter.startDiscovery();
                     }
                     int attempts = 10;
-                    while(building_id == (long) 0 && attempts > 0){
+                    while(building_id != null && attempts > 0){
                         sleep(1000);
                         Log.d("DEVICELIST","Attempts left" + attempts +"\n");
                         attempts -= 1;
@@ -87,7 +87,7 @@ public class Splash extends Activity {
                 }finally{
                     Log.d("DEVICELIST","Identified Building ID: "+building_id+" \n");
                     Intent intent = new Intent(Splash.this, IndoorsActivity.class);
-                    if (building_id !=  (long) 0) {
+                    if (building_id != null) {
                         intent.putExtra("Building_ID", building_id);
                         startActivity(intent);
                     }
