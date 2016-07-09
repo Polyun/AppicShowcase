@@ -26,8 +26,24 @@ public class Splash extends Activity {
     private BluetoothAdapter BTAdapter;
 
     private static Long building_id = null;
-
+    private static boolean found = false;
     private List<DeviceItem> mAdapter;
+
+    private void isFound(boolean f){
+        found = f;
+    }
+
+    public static void setBuilding_id(Long building_id) {
+        Splash.building_id = building_id;
+    }
+
+    public static Long getBuilding_id() {
+        return building_id;
+    }
+
+    public static boolean isFound() {
+        return found;
+    }
 
     public static int REQUEST_BLUETOOTH = 1;
 
@@ -36,14 +52,19 @@ public class Splash extends Activity {
             String action = intent.getAction();
 
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                Log.d("DEVICELIST", "Bluetooth device found\n");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 float rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
+                String address = device.getAddress();
                 String uuid = BluetoothDevice.EXTRA_UUID;
+                String name = device.getName();
+                Long building_id_temp = Location_Store.get_location(address);
+                setBuilding_id(building_id_temp);
+                isFound(true);
+                Log.d("DEVICELIST", "Found device " + device.getName() + " Address: "+ device.getAddress() + " RSSI:" + rssi+ " UUID:" + uuid + "Building_ID: " + building_id_temp + "\n");
+
                 // Create a new device item
-                DeviceItem newDevice = new DeviceItem(device.getName(), device.getAddress(), rssi, uuid, "false");
-                Log.d("DEVICELIST", "Found device " + device.getName() + " Address: "+ device.getAddress() + " RSSI:" + rssi+ " UUID:" + uuid + "Building_ID: " + Location_Store.get_location(newDevice.getAddress()) + "\n");
-                building_id = Location_Store.get_location(newDevice.getAddress());
+                //DeviceItem newDevice = new DeviceItem(name, address, rssi, uuid, "false");
+
             }
         }
     };
@@ -58,29 +79,32 @@ public class Splash extends Activity {
 
         Thread timerThread = new Thread(){
             public void run(){
-
+                Log.d("DEVICELIST","\n STARTING \n");
                 try{
-                    Log.d("DEVICELIST", "Start timer thread \n" );
+                    sleep(1000);
                     BTAdapter = BluetoothAdapter.getDefaultAdapter();
                     // Phone does not support Bluetooth so let the user know and exit.
                     if (BTAdapter == null) {
                         Log.d("DEVICELIST","No Bluetooth active \n");
                     }
-
                     if (!BTAdapter.isEnabled()) {
                         Log.d("DEVICELIST","Bluetooth not enabled \n");
                     }
                     else{
                         Log.d("DEVICELIST","Bluetooth enabled \n");
                         registerReceiver(bReciever,  new IntentFilter(BluetoothDevice.ACTION_FOUND));
-
                         BTAdapter.startDiscovery();
                     }
+                    sleep(1000);
                     int attempts = 10;
-                    while(building_id != null && attempts > 0){
-                        sleep(1000);
-                        Log.d("DEVICELIST","Attempts left" + attempts +"\n");
+                    while(isFound() == false && attempts > 0){
+                        sleep(3000);
+                        Log.d("DEVICELIST","Could not identify building: "+getBuilding_id()+ "   Attempts left: " + attempts + " Found: " + isFound() +"\n");
                         attempts -= 1;
+                        // sometimes discovery just finishes by itself. make sure it is started every at every attempt again for the next attempt.
+                        if (!BTAdapter.isDiscovering()){
+                            BTAdapter.startDiscovery();
+                        }
                     }
                 }catch(InterruptedException e){
                     e.printStackTrace();

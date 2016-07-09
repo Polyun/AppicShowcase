@@ -14,6 +14,8 @@ public class Location_Store {
         bt_add2build_id.put("F3:B0:21:50:EF:79", (long) 783306659);
         bt_add2build_id.put("D3:FB:24:49:2D:77", (long) 783306659);
         bt_add2build_id.put("CE:5B:0F:63:69:1E", (long) 783306659);
+        bt_add2build_id.put("E1:EC:6A:23:A2:07", (long) 783306659);
+
     }
 
     public static Long get_location(String bt_add){
