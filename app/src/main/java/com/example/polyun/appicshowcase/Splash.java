@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.ParcelUuid;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import com.customlbs.library.model.Zone;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -55,12 +58,20 @@ public class Splash extends Activity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 float rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
                 String address = device.getAddress();
-                String uuid = BluetoothDevice.EXTRA_UUID;
+                String uuid = intent.getStringExtra(BluetoothDevice.EXTRA_UUID);
+                ParcelUuid[] uuids= device.getUuids();
+                device.fetchUuidsWithSdp();
                 String name = device.getName();
+
                 Long building_id_temp = Location_Store.get_location(address);
                 setBuilding_id(building_id_temp);
                 isFound(true);
                 Log.d("DEVICELIST", "Found device " + device.getName() + " Address: "+ device.getAddress() + " RSSI:" + rssi+ " UUID:" + uuid + "Building_ID: " + building_id_temp + "\n");
+                /*for (ParcelUuid single_uuid: uuids) {
+                    Log.d("DEVICELIST", "Going through UUIDs ");
+                }*/
+
+                //Log.d("DEVICELIST", "Found uuids " + uuids.toString() + "\n");
 
                 // Create a new device item
                 //DeviceItem newDevice = new DeviceItem(name, address, rssi, uuid, "false");
@@ -98,13 +109,13 @@ public class Splash extends Activity {
                     sleep(1000);
                     int attempts = 10;
                     while(isFound() == false && attempts > 0){
-                        sleep(3000);
                         Log.d("DEVICELIST","Could not identify building: "+getBuilding_id()+ "   Attempts left: " + attempts + " Found: " + isFound() +"\n");
                         attempts -= 1;
                         // sometimes discovery just finishes by itself. make sure it is started every at every attempt again for the next attempt.
                         if (!BTAdapter.isDiscovering()){
                             BTAdapter.startDiscovery();
                         }
+                        sleep(3000);
                     }
                 }catch(InterruptedException e){
                     e.printStackTrace();

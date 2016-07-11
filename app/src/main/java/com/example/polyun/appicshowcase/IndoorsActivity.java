@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -99,7 +100,9 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         indoorsBuilder.setBuildingId(BuildingID);
         showToast("BuildingID loaded and Interaction Listener loaded");
         //Toast.makeText(getApplicationContext(), "BuildingID loaded", Toast.LENGTH_SHORT).show();
-
+        String map_dir = indoorsBuilder.getMapDirectory();
+        Log.d("DEVICELIST", "MapDirectory: " + map_dir + "\n");
+        showToast("MapDirectory: " + map_dir);
         //Toast.makeText(getApplicationContext(), "Interaction Listener loaded", Toast.LENGTH_SHORT).show();
         surfaceBuilder.setIndoorsBuilder(indoorsBuilder);
 
@@ -129,7 +132,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 
     @Override
     public void buildingLoaded(Building building) {
-        showToast("Building loaded");
+        showToast("Building loaded: " + building.getDescription() + building.getName());
         //Toast.makeText(getApplicationContext(), "Building loaded", Toast.LENGTH_SHORT).show();
     }
 
