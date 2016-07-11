@@ -3,6 +3,7 @@ package com.example.polyun.appicshowcase;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -93,7 +94,8 @@ public class Splash extends Activity {
                 Log.d("DEVICELIST","\n STARTING \n");
                 try{
                     sleep(1000);
-                    BTAdapter = BluetoothAdapter.getDefaultAdapter();
+                    BTAdapter = ((BluetoothManager) getSystemService(BLUETOOTH_SERVICE)).getAdapter();
+                    //BluetoothAdapter.getDefaultAdapter();
                     // Phone does not support Bluetooth so let the user know and exit.
                     if (BTAdapter == null) {
                         Log.d("DEVICELIST","No Bluetooth active \n");
@@ -107,7 +109,7 @@ public class Splash extends Activity {
                         BTAdapter.startDiscovery();
                     }
                     sleep(1000);
-                    int attempts = 10;
+                    int attempts = 5;
                     while(isFound() == false && attempts > 0){
                         Log.d("DEVICELIST","Could not identify building: "+getBuilding_id()+ "   Attempts left: " + attempts + " Found: " + isFound() +"\n");
                         attempts -= 1;
@@ -128,7 +130,10 @@ public class Splash extends Activity {
                     }
                     else{
                         Log.d("DEVICELIST","Could not identify building: "+building_id+" \n");
-                        finish();
+                        Log.d("DEVICELIST", "Starting with default Building ID");
+                        intent.putExtra("Building_ID", (long) 783306659);
+                        startActivity(intent);
+                        //finish();
                     }
                 }
             }

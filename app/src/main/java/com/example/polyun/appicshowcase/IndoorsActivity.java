@@ -1,6 +1,7 @@
 package com.example.polyun.appicshowcase;
 
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import com.customlbs.library.IndoorsException;
 import com.customlbs.library.IndoorsFactory;
 import com.customlbs.library.IndoorsLocationListener;
 import com.customlbs.library.callbacks.LoadingBuildingStatus;
+import com.customlbs.library.callbacks.RoutingCallback;
 import com.customlbs.library.model.Building;
 import com.customlbs.library.model.Zone;
 import com.customlbs.shared.Coordinate;
@@ -39,6 +41,8 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     IndoorsSurfaceFactory.Builder surfaceBuilder    = new IndoorsSurfaceFactory.Builder();
     Toast currentToast;
     List<Long> lastZoneIDList                       = new ArrayList<Long>();
+    Coordinate routeToCoordinate                    = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +63,19 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         return true;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            Log.d("Activity Result", "Result OK");
+            Point point = (Point) data.getParcelableExtra("RouteCoordinate");
+            routeToCoordinate = new Coordinate(point.x, point.y, 1);
+            //showToast("Activity Result OK");
+        }
+        else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
     /**
      * Handles selection of menu item
      * @param item Selected menu item
@@ -73,7 +90,8 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
                 Intent intent = new Intent(this, ZonesActivity.class);
                 //intent.putExtra("ZonesList", getZoneNames());
                 intent.putParcelableArrayListExtra("ZonesList", (ArrayList<Zone>)IndoorsSurfaceFragment.getZones());
-                startActivity(intent);
+                //startActivity(intent);
+                startActivityForResult(intent, 0);
                 return true;
         }
 
@@ -119,7 +137,6 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(android.R.id.content, IndoorsSurfaceFragment, "indoors");
         transaction.commit();
-
     }
 
     @Override
@@ -133,7 +150,28 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     @Override
     public void buildingLoaded(Building building) {
         showToast("Building loaded: " + building.getDescription() + building.getName());
-        //Toast.makeText(getApplicationContext(), "Building loaded", Toast.LENGTH_SHORT).show();
+
+        if (routeToCoordinate != null) {
+            //IndoorsSurfaceFragment.routeTo(routeToCoordinate, true);
+            //IndoorsSurfaceFragment.updateSurface();
+            IndoorsSurfaceFragment.getIndoors().getRouteAToB(IndoorsSurfaceFragment.getCurrentUserPosition(),
+                    routeToCoordinate,
+                    new RoutingCallback() {
+                        @Override
+                        public void onError(IndoorsException arg0) {
+                            // TODO Auto-generated method stub
+                            arg0.getErrorCode();
+                        }
+
+                        @Override
+                        public void setRoute(ArrayList<Coordinate> route) {
+                            surfaceBuilder.getSurfaceState().setRoutingPath(route);
+                            // this how to enable route snapping starting 3.8
+                            //IndoorsFactory.getInstance().enableSnapToRoute(route);
+                            IndoorsSurfaceFragment.updateSurface();
+                        }
+                    });
+        }
     }
 
     @Override
@@ -143,50 +181,45 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 
     @Override
     public void positionUpdated(Coordinate userPosition, int accuracy) {
-        //Location geoLocation = IndoorsCoordinateUtil.toGeoLocation(userPosition, this.building);
-        int x = userPosition.x;
-        int y = userPosition.y;
-        int z = userPosition.z;
-        VisibleMapRect rect1 = IndoorsSurfaceFragment.getVisibleMapRect();
-
-        SurfaceState surface_State = surfaceBuilder.getSurfaceState();
-
-
-        //surface_State.lockOnUserPosition = true;
-        //surface_State.selectFittingBackground();
-        surface_State.adjustMapPosition();
-
-        //Update old Zone-List cause there is no zone-left-event
-        zoneListChanged(IndoorsSurfaceFragment.getCurrentZones());
-
-
-        //Toast toast = Toast.makeText(getApplicationContext(), "Position Update x:"+x+" y:"+y+" z:"+z, Toast.LENGTH_SHORT);
-        //toast.show();
-
-        //move to position
-        float zoom = surface_State.mapZoomFactor;
-        float mapx = surface_State.getMapX();
-        float mapy = surface_State.getMapY();
-        double pd = surface_State.currentTiles.getMmPerPixel(); //pixel density
-        float canvas_x = (float)((double)x / (pd / zoom) + mapx);
-        float canvas_y = (float)((double)y / (pd / zoom) + mapy);
-        // canvas_x und y liefern dasselbe wie IndoorsSurfaceOverlayUtil.CanvasCoordinate cc = buildingCoordinateToCanvasAbsolute(surface_State, x, y);
-
-        int mapwidth = surface_State.surfaceWidth;
-        int mapheight =surface_State.surfaceHeight;
-        float vp_x = surface_State.getMapX() + ((float)(mapwidth / 2) - canvas_x);
-        float vp_y = surface_State.getMapY() + ((float)(mapheight / 2) - canvas_y);
-
-        IndoorsSurfaceFragment.setVisibleMapRectAndUpdateSurface(new VisibleMapRect(vp_x,vp_y,rect1.zoom));
-
-        String toast_message ="Position Update ("+x+","+y+") z:"+z
-                + "\n VisibleMapRect Center ("+rect1.x+","+rect1.y+") zoom:"+rect1.zoom
-                + "\n Map Size: ("+mapwidth+","+mapheight+")"
-                + "\n MmPixels:"+ surface_State.currentTiles.getMmPerPixel()
-                + "\n Canvas Coordinates: ("+(int)canvas_x + ","+(int)canvas_y+")"
-                + "\n Surface Coordinate: (" +(int)vp_x + ","+(int)vp_y+")";
-
-        showToast(toast_message);
+//        //Location geoLocation = IndoorsCoordinateUtil.toGeoLocation(userPosition, this.building);
+//        int x = userPosition.x;
+//        int y = userPosition.y;
+//        int z = userPosition.z;
+//        VisibleMapRect rect1 = IndoorsSurfaceFragment.getVisibleMapRect();
+//
+//        SurfaceState surface_State = surfaceBuilder.getSurfaceState();
+//
+//        //surface_State.lockOnUserPosition = true;
+//        //surface_State.selectFittingBackground();
+//        surface_State.adjustMapPosition();
+//
+//        //Update old Zone-List cause there is no zone-left-event
+//        zoneListChanged(IndoorsSurfaceFragment.getCurrentZones());
+//
+//        //move to position
+//        float zoom = surface_State.mapZoomFactor;
+//        float mapx = surface_State.getMapX();
+//        float mapy = surface_State.getMapY();
+//        double pd = surface_State.currentTiles.getMmPerPixel(); //pixel density
+//        float canvas_x = (float)((double)x / (pd / zoom) + mapx);
+//        float canvas_y = (float)((double)y / (pd / zoom) + mapy);
+//        // canvas_x und y liefern dasselbe wie IndoorsSurfaceOverlayUtil.CanvasCoordinate cc = buildingCoordinateToCanvasAbsolute(surface_State, x, y);
+//
+//        int mapwidth = surface_State.surfaceWidth;
+//        int mapheight =surface_State.surfaceHeight;
+//        float vp_x = surface_State.getMapX() + ((float)(mapwidth / 2) - canvas_x);
+//        float vp_y = surface_State.getMapY() + ((float)(mapheight / 2) - canvas_y);
+//
+//        IndoorsSurfaceFragment.setVisibleMapRectAndUpdateSurface(new VisibleMapRect(vp_x,vp_y,rect1.zoom));
+//
+//        String toast_message ="Position Update ("+x+","+y+") z:"+z
+//                + "\n VisibleMapRect Center ("+rect1.x+","+rect1.y+") zoom:"+rect1.zoom
+//                + "\n Map Size: ("+mapwidth+","+mapheight+")"
+//                + "\n MmPixels:"+ surface_State.currentTiles.getMmPerPixel()
+//                + "\n Canvas Coordinates: ("+(int)canvas_x + ","+(int)canvas_y+")"
+//                + "\n Surface Coordinate: (" +(int)vp_x + ","+(int)vp_y+")";
+//
+//        showToast(toast_message);
 
     }
 
