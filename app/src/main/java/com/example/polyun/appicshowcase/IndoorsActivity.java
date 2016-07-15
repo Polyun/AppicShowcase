@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.widget.Toast;
 
 import com.customlbs.library.Indoors;
@@ -77,9 +78,11 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             Log.d("Activity Result", "Result OK");
-            Point point = (Point) data.getParcelableExtra("RouteCoordinate");
-            routeToCoordinate = new Coordinate(point.x, point.y, 1);
-            //showToast("Activity Result OK");
+            Integer x =  data.getIntExtra("tgtx",0);
+            Integer y =  data.getIntExtra("tgty",0);
+            Integer z =  data.getIntExtra("tgtz",0);
+            routeToCoordinate = new Coordinate(x,y,z);
+            showToast("Activity Result OK, navigating to " +x+" " +y+ " " +z);
         }
         else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -157,34 +160,37 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     @Override
     public void buildingLoaded(Building building) {
         this.building = building;
-        showToast("Building loaded: " + building.getDescription() + building.getName());
-        /*
-        if (routeToCoordinate != null) {
-            //IndoorsSurfaceFragment.routeTo(routeToCoordinate, true);
-            //IndoorsSurfaceFragment.updateSurface();
-            IndoorsSurfaceFragment.getIndoors().getRouteAToB(IndoorsSurfaceFragment.getCurrentUserPosition(),
-                    routeToCoordinate,
-                    new RoutingCallback() {
-                        @Override
-                        public void onError(IndoorsException arg0) {
-                            // TODO Auto-generated method stub
-                            arg0.getErrorCode();
-                        }
+        //showToast("Building loaded: " + building.getDescription() + building.getName());
+        SurfaceState surfaceState = surfaceBuilder.getSurfaceState();
+        synchronized (surfaceState){
+            if (routeToCoordinate != null) {
+                //IndoorsSurfaceFragment.routeTo(routeToCoordinate, true);
+                //IndoorsSurfaceFragment.updateSurface();
+                IndoorsSurfaceFragment.getIndoors().getRouteAToB(IndoorsSurfaceFragment.getCurrentUserPosition(),
+                        routeToCoordinate,
+                        new RoutingCallback() {
+                            @Override
+                            public void onError(IndoorsException arg0) {
+                                // TODO Auto-generated method stub
+                                arg0.getErrorCode();
+                            }
 
-                        @Override
-                        public void setRoute(ArrayList<Coordinate> route) {
-                            surfaceBuilder.getSurfaceState().setRoutingPath(route);
-                            // this how to enable route snapping starting 3.8
-                            //IndoorsFactory.getInstance().enableSnapToRoute(route);
-                            IndoorsSurfaceFragment.updateSurface();
-                        }
-                    });
+                            @Override
+                            public void setRoute(ArrayList<Coordinate> route) {
+                                surfaceBuilder.getSurfaceState().setRoutingPath(route);
+                                // this how to enable route snapping starting 3.8
+                                //IndoorsFactory.getInstance().enableSnapToRoute(route);
+                                IndoorsSurfaceFragment.updateSurface();
+                            }
+                        });
+            }
         }
-        */
+
+
         //showToast("Building loaded: " + building.getDescription() + "\n" +building.getName());
         floors = building.getFloors();
         //updateFloorList(building);
-        showToast("Floors: " + floors.toString());
+        //showToast("Floors: " + floors.toString());
 
         //Toast.makeText(getApplicationContext(), "Building loaded", Toast.LENGTH_SHORT).show();
 //        NotificationCompat.Builder mBuilder =
@@ -202,7 +208,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 
     @Override
     public void positionUpdated(Coordinate userPosition, int accuracy) {
-        Location geoLocation = IndoorsCoordinateUtil.toGeoLocation(userPosition, this.building);
+        //Location geoLocation = IndoorsCoordinateUtil.toGeoLocation(userPosition, this.building);
         int x = userPosition.x;
         int y = userPosition.y;
         int z = userPosition.z;
@@ -239,8 +245,8 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 //                + "\n MmPixels:"+ surface_State.currentTiles.getMmPerPixel()
 //                + "\n Canvas Coordinates: ("+(int)canvas_x + ","+(int)canvas_y+")"
 //                + "\n Surface Coordinate: (" +(int)vp_x + ","+(int)vp_y+")";
-        String toast_message ="Position Update ("+x+","+y+") z:"+z;
-        showToast(toast_message);
+        //String toast_message ="Position Update ("+x+","+y+") z:"+z;
+        //showToast(toast_message);
 
     }
 
@@ -252,9 +258,13 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     @Override
     public void changedFloor(int i, String s) {
         // the floors are saved the other way around, so we look at size-1-i, to get the index backwards
-        showToast("changed Floor:" + i + " " + s + " to " + floors.get(floors.size()-1-i).toString());
+        // showToast("changed Floor:" + i + " " + s + " to " + floors.get(floors.size()-1-i).toString());
         SurfaceState surface_State = surfaceBuilder.getSurfaceState();
-        surface_State.setFloor(floors.get(floors.size()-1-i));
+        synchronized (surface_State){
+            surface_State.setFloor(floors.get(floors.size()-1-i));
+        }
+
+
     }
 
     @Override

@@ -39,8 +39,6 @@
         <activity
             android:name=".ZonesActivity"
             android:label="@string/label_zone_activity" />
-        <activity android:name=".BluetoothActivity" />
-        <activity android:name=".Splash_Bluetooth_Background" />
         <activity android:name=".LocationSelectionActivity"></activity>
     </application>
 

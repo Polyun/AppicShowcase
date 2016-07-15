@@ -3,6 +3,7 @@ package com.example.polyun.appicshowcase;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.graphics.Point;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,9 +13,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.customlbs.library.Indoors;
 import com.customlbs.library.model.Zone;
 import com.customlbs.shared.Coordinate;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,9 +86,13 @@ public class ZonesActivity extends ListActivity {
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         //selection.setText(zones[position].getName());
-        Intent intent   = new Intent();
+        Intent intent = new Intent();
+        Coordinate b = getZoneCoordinate(zones[position]);
         //intent.putExtra("DATA", "your string");
-        intent.putExtra("RouteCoordinate", getZoneCoordinate(zones[position]));
+
+        intent.putExtra("tgtx",b.x);
+        intent.putExtra("tgty",b.y);
+        intent.putExtra("tgtz",b.z);
         setResult(RESULT_OK, intent);
         super.onBackPressed();
         finish();
@@ -100,21 +107,18 @@ public class ZonesActivity extends ListActivity {
         return zoneNameList.toArray(new String[zoneNameList.size()]);
     }
 
-    Point getZoneCoordinate(Zone zone) {
+    Coordinate getZoneCoordinate(Zone zone) {
 
         int allX = 0;
         int allY = 0;
+        int z = zone.getFloorLevel();
         int zoneListLength = zone.getZonePoints().size();
         for (Coordinate coord: zone.getZonePoints()) {
             allX += coord.x;
             allY += coord.y;
         }
-        Point point = new Point(allX / zoneListLength,
-                allY / zoneListLength);
-        return point;
-//        Coordinate resultCoord = new Coordinate(allX / zoneListLength,
-//                allY / zoneListLength, 0);
-//        return resultCoord;
+        Coordinate resultCoord = new Coordinate(allX / zoneListLength, allY / zoneListLength,z);
+        return resultCoord;
     }
 
 }
