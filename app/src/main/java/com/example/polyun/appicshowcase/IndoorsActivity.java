@@ -2,6 +2,7 @@ package com.example.polyun.appicshowcase;
 
 import android.content.Intent;
 import android.graphics.Point;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -20,6 +21,7 @@ import com.customlbs.library.callbacks.RoutingCallback;
 import com.customlbs.library.model.Building;
 import com.customlbs.library.model.Floor;
 import com.customlbs.library.model.Zone;
+import com.customlbs.library.util.IndoorsCoordinateUtil;
 import com.customlbs.shared.Coordinate;
 import com.customlbs.surface.library.IndoorsSurfaceFactory;
 import com.customlbs.surface.library.IndoorsSurfaceFragment;
@@ -27,13 +29,12 @@ import com.customlbs.surface.library.IndoorsSurfaceOverlayUtil;
 import com.customlbs.surface.library.SurfaceState;
 import com.customlbs.surface.library.ViewMode;
 import com.customlbs.surface.library.VisibleMapRect;
-import com.example.polyun.appicshowcase.FloorSelectionFragment.OnFloorSelectedListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.customlbs.surface.library.IndoorsSurfaceOverlayUtil.buildingCoordinateToCanvasAbsolute;
 
-public class IndoorsActivity extends AppCompatActivity implements IndoorsLocationListener, OnFloorSelectedListener {
+public class IndoorsActivity extends AppCompatActivity implements IndoorsLocationListener{
 
     //private Indoors indoors;
     private static Long BuildingID;
@@ -45,9 +46,9 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     Toast currentToast;
     List<Long> lastZoneIDList                       = new ArrayList<Long>();
     Coordinate routeToCoordinate                    = null;
-    private FloorSelectionFragment floorSelectionFragment;
-    FragmentManager fragmentManager = null;
-    private ArrayList<Floor> floors = null;
+    Building building                               = null;
+    FragmentManager fragmentManager                 = null;
+    private ArrayList<Floor> floors                 = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,9 +57,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         BuildingID = getIntent().getExtras().getLong("Building_ID");
         API_key = getIntent().getExtras().getString("API_key");
         fragmentManager = getSupportFragmentManager();
-        floorSelectionFragment = new FloorSelectionFragment();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.floors_fragment, floorSelectionFragment, "indoorsFloors");
         show_indoors();
     }
 
@@ -112,9 +111,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     public void show_indoors() {
         showToast("Start indoors");
         indoorsBuilder.setUserInteractionListener(this);
-        floorSelectionFragment = new FloorSelectionFragment();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.floors_fragment, floorSelectionFragment, "indoorsFloors");
 
         //surfaceBuilder.setIndoorsBuilder(indoorsBuilder);
 
@@ -159,6 +156,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 
     @Override
     public void buildingLoaded(Building building) {
+        this.building = building;
         showToast("Building loaded: " + building.getDescription() + building.getName());
         /*
         if (routeToCoordinate != null) {
@@ -185,7 +183,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         */
         //showToast("Building loaded: " + building.getDescription() + "\n" +building.getName());
         floors = building.getFloors();
-        updateFloorList(building);
+        //updateFloorList(building);
         showToast("Floors: " + floors.toString());
 
         //Toast.makeText(getApplicationContext(), "Building loaded", Toast.LENGTH_SHORT).show();
@@ -204,10 +202,10 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 
     @Override
     public void positionUpdated(Coordinate userPosition, int accuracy) {
-//        //Location geoLocation = IndoorsCoordinateUtil.toGeoLocation(userPosition, this.building);
-//        int x = userPosition.x;
-//        int y = userPosition.y;
-//        int z = userPosition.z;
+        Location geoLocation = IndoorsCoordinateUtil.toGeoLocation(userPosition, this.building);
+        int x = userPosition.x;
+        int y = userPosition.y;
+        int z = userPosition.z;
 //        VisibleMapRect rect1 = IndoorsSurfaceFragment.getVisibleMapRect();
 //
 //        SurfaceState surface_State = surfaceBuilder.getSurfaceState();
@@ -241,8 +239,8 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 //                + "\n MmPixels:"+ surface_State.currentTiles.getMmPerPixel()
 //                + "\n Canvas Coordinates: ("+(int)canvas_x + ","+(int)canvas_y+")"
 //                + "\n Surface Coordinate: (" +(int)vp_x + ","+(int)vp_y+")";
-//
-//        showToast(toast_message);
+        String toast_message ="Position Update ("+x+","+y+") z:"+z;
+        showToast(toast_message);
 
     }
 
@@ -327,7 +325,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         currentToast.setDuration(Toast.LENGTH_LONG);
         currentToast.show();
     }
-
+    /*
     public void updateFloorList(Building building) {
         // update floor list if fragment is visible
         if (floorSelectionFragment != null) {
@@ -359,4 +357,5 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         // Print selection to screen.
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+    */
 }
