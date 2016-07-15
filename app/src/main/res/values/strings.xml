@@ -3,4 +3,93 @@
     <string name="action_show_zones">Available Zones</string>
     <string name="label_zone_activity">Points Of Interest</string>
     <string name="action_show_map">Show Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="choose">Choose</string>
+    <string name="floor">Floor</string>
+    <string name="automatic">Automatic</string>
+    <string name="maplist_empty">No maps available.</string>
+    <string name="more">More</string>
+    <string name="legalnotes">EULA</string>
+    <string name="username_menu">Username</string>
+
+    <string name="privacypolicy">Privacy policy</string>
+        <string name="privacypolicy_text">Personenbezogene Daten, die wir von Ihnen im Rahmen der Benützung unserer Website bzw. unser Service indoo.rs erhalten, werden gemäß den gesetzlichen Bestimmungen vertraulich behandelt und ausschließlich zu dem von Ihnen freigegebenen Zweck einer Datenverarbeitung unterzogen.\n\n
+    Sofern Teile oder einzelne Formulierungen dieses Textes der geltenden Rechtslage nicht, nicht mehr oder nicht vollständig entsprechen sollten, bleiben die übrigen Teile des Dokumentes in ihrem Inhalt und ihrer Gültigkeit davon unberührt.</string>
+    <string name="select_floor">Select floor</string>
+    <string name="select_floor_cond">Floor</string>
+    <string name="select_building">Select building</string>
+    <string name="select_building_cond">Building</string>
+    <string name="select_zone">Select zone</string>
+    <string name="select_zone_cond">Zone</string>
+    <string name="select_route">Route</string>
+    <string name="building">Building</string>
+    <string name="selected">selected</string>
+    <string name="automatic_building_selected">Automatic building selection enabled.</string>
+    <string name="automatic_floor_selected">Automatic floor selection enabled.</string>
+    <string name="overview_map">Overview map</string>
+    <string name="cancel_route">Cancel</string>
+    <string name="lock_on_button">Lock on me </string>
+    <string name="paint_zones_button">Draw zones</string>
+    <string name="no_zones">No Zones found!</string>
+    <string name="input_username_text">Enter username:</string>
+    <string name="scan_qr">Scan QR</string>
+    <string name="scan_a_qr_code">Scan a QR code</string>
+    <string name="settings_version">Version</string>
+    <string name="distance_meters"> meters</string>
+
+    <!-- Various restart the app calls -->
+    <string name="settings_saved_restart">Settings saved. Restart the app!</string>
+    <string name="settings_deleted_restart">Settings deleted. Restart the app!</string>
+    <string name="settings_already_deleted_restart">Settings already deleted. Restart the app!</string>
+    <string name="settings_reset_failed">Failed to reset to defaults.</string>
+    <string name="settings_write_failed">Could not write settings.</string>
+    <string name="restart_app">Please restart the app!</string>
+    <string name="start_app_again">Start the app again!</string>
+
+    <!-- Dot On rails -->
+    <string name="settings_dotonrails_jumping_distance">Change the maximum jumping distance</string>
+    <string name="settings_dotonrails_possible">Use dot on rails</string>
+    <string name="settings_dotonrails_disabled">Use dot on rails (First activate Path Snapper for Dot on Rails)</string>
+    <string name="settings_dotonrails_dotonrails">Dot on Rails</string>
+
+
+    <!-- Reset To default Settings -->
+    <string name="warnning_reset_to_default_dialog_title">Warning</string>
+        <string name="warnning_reset_to_default_dialog_message">Are you sure that you want to reset to factory defaults? This will delete all settings and data.
+         It will also restart the app</string>
+    <string name="warnning_reset_to_default_dialog_OK">Reset</string>
+    <string name="warnning_reset_to_default_dialog_Cancel">Cancel</string>
+
+    <!-- Calibration Dialog -->
+    <string name="calibrate_app_message">You should calibrate the compass on your device before starting, turn your device three times in each of the three directions now</string>
+    <string name="calibrate_app_ok_button">OK</string>
+    <!-- disable location arrow debuf fragment -->
+    <string name="disable_location_arrow_checkbox_text">Show a circle instead of an arrow</string>
+    <string name="disable_location_arrow_header">Disable location Arrow</string>
+
+    <!-- Rotation Dialog -->
+    <string name="title_no_rotation_dialog">Setting Rotation</string>
+    <string name="message_no_rotation_dialog">Your building has no rotation set, we will disable the location arrow until you set the rotation to avoid wrong orientation. You can set the rotation in the MMT, please take a look at our MMT guide</string>
+    <string name="cancel_button_text">Cancel</string>
+    <string name="low_latency_dot_label">Low latency dot</string>
+    <string name="debug_mode_label">Debug mode</string>
+    <string name="show_all_zones_label">Show all zones</string>
+    <string name="settings_label">Settings</string>
+    <string name="force_download_label">Force download new map</string>
+    <string name="kalman_status_on">Kalman Filter: Enabled</string>
+    <string name="kalman_status_off">Kalman Filter: Disabled</string>
+    <string name="kalman_status_header">Kalman Filter</string>
+    <string name="settings_change_stabilization_filter_time">Adjust stabilization filter time</string>
+    <string name="stabilization_status_on">Stabilization Filter: Enabled</string>
+    <string name="stabilization_status_off">Stabilization Filter: Disabled</string>
+    <string name="stabilization_filter_header">Stabilization Filter</string>
+    <!-- used for interacor 1-->
+    <string name="proximity_status">Proximity Status</string>
+    <string name="proximity_status_disabled">Proximity Status: Disabled</string>
+    <string name="proximity_status_enabled">Proximity Status: Enabled</string>
+
 </resources>

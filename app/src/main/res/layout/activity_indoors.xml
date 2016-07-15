@@ -1,12 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.polyun.appicshowcase.IndoorsActivity">
 
-</RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/surfaceview_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- this id different from debug fragment this is info sent from locator for debug -->
+
+    <FrameLayout
+        android:id="@+id/debug_info_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom" >
+
+    </FrameLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:layout_margin="6dp"
+        android:orientation="vertical" >
+
+        <FrameLayout
+            android:id="@+id/currentpositionbutton_fragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true" >
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/floors_fragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp" >
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/zoombuttons_fragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" >
+        </FrameLayout>
+    </RelativeLayout>
+
+</FrameLayout>

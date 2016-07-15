@@ -3,6 +3,7 @@ package com.example.polyun.appicshowcase;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,6 +18,7 @@ import com.customlbs.library.IndoorsLocationListener;
 import com.customlbs.library.callbacks.LoadingBuildingStatus;
 import com.customlbs.library.callbacks.RoutingCallback;
 import com.customlbs.library.model.Building;
+import com.customlbs.library.model.Floor;
 import com.customlbs.library.model.Zone;
 import com.customlbs.shared.Coordinate;
 import com.customlbs.surface.library.IndoorsSurfaceFactory;
@@ -25,16 +27,17 @@ import com.customlbs.surface.library.IndoorsSurfaceOverlayUtil;
 import com.customlbs.surface.library.SurfaceState;
 import com.customlbs.surface.library.ViewMode;
 import com.customlbs.surface.library.VisibleMapRect;
-
+import com.example.polyun.appicshowcase.FloorSelectionFragment.OnFloorSelectedListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.customlbs.surface.library.IndoorsSurfaceOverlayUtil.buildingCoordinateToCanvasAbsolute;
 
-public class IndoorsActivity extends AppCompatActivity implements IndoorsLocationListener{
+public class IndoorsActivity extends AppCompatActivity implements IndoorsLocationListener, OnFloorSelectedListener {
 
     //private Indoors indoors;
     private static Long BuildingID;
+    private static String API_key;
     private IndoorsSurfaceFragment IndoorsSurfaceFragment;
     private SurfaceState custom_Surface_State       = new SurfaceState();
     IndoorsFactory.Builder indoorsBuilder           = new IndoorsFactory.Builder();
@@ -42,15 +45,23 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     Toast currentToast;
     List<Long> lastZoneIDList                       = new ArrayList<Long>();
     Coordinate routeToCoordinate                    = null;
-
+    private FloorSelectionFragment floorSelectionFragment;
+    FragmentManager fragmentManager = null;
+    private ArrayList<Floor> floors = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_indoors);
         BuildingID = getIntent().getExtras().getLong("Building_ID");
+        API_key = getIntent().getExtras().getString("API_key");
+        fragmentManager = getSupportFragmentManager();
+        floorSelectionFragment = new FloorSelectionFragment();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.floors_fragment, floorSelectionFragment, "indoorsFloors");
         show_indoors();
     }
+
 
     /**
      * Inflate the menu; this adds items to the action bar if it is present.
@@ -101,6 +112,9 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     public void show_indoors() {
         showToast("Start indoors");
         indoorsBuilder.setUserInteractionListener(this);
+        floorSelectionFragment = new FloorSelectionFragment();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.floors_fragment, floorSelectionFragment, "indoorsFloors");
 
         //surfaceBuilder.setIndoorsBuilder(indoorsBuilder);
 
@@ -109,12 +123,8 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 
         indoorsBuilder.setContext(this);
 
-
-        // TODO: replace this with your API-key
-        indoorsBuilder.setApiKey("8367396f-ba11-4512-aeb3-6cef6a39acf7");
-
-        // TODO: replace 12345 with the id of the building you uploaded to
-        // our cloud using the MMT
+        // API key and building ID are put in Extra by the Splash Screen activity
+        indoorsBuilder.setApiKey(API_key);
         indoorsBuilder.setBuildingId(BuildingID);
         showToast("BuildingID loaded and Interaction Listener loaded");
         //Toast.makeText(getApplicationContext(), "BuildingID loaded", Toast.LENGTH_SHORT).show();
@@ -134,7 +144,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         showToast("IndoorsSurfaceFragment loaded");
         //Toast.makeText(getApplicationContext(), "IndoorsSurfaceFragment loaded", Toast.LENGTH_SHORT).show();
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        //FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(android.R.id.content, IndoorsSurfaceFragment, "indoors");
         transaction.commit();
     }
@@ -142,7 +152,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     @Override
     public void loadingBuilding(LoadingBuildingStatus loadingBuildingStatus) {
         int progress = loadingBuildingStatus.getProgress();
-        showToast("Building Loading progress " + progress);
+        // showToast("Building Loading progress " + progress);
         //Toast toast = Toast.makeText(getApplicationContext(), "Building Loading progress " + progress, Toast.LENGTH_SHORT);
         //toast.show();
     }
@@ -150,7 +160,7 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
     @Override
     public void buildingLoaded(Building building) {
         showToast("Building loaded: " + building.getDescription() + building.getName());
-
+        /*
         if (routeToCoordinate != null) {
             //IndoorsSurfaceFragment.routeTo(routeToCoordinate, true);
             //IndoorsSurfaceFragment.updateSurface();
@@ -172,6 +182,19 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
                         }
                     });
         }
+        */
+        //showToast("Building loaded: " + building.getDescription() + "\n" +building.getName());
+        floors = building.getFloors();
+        updateFloorList(building);
+        showToast("Floors: " + floors.toString());
+
+        //Toast.makeText(getApplicationContext(), "Building loaded", Toast.LENGTH_SHORT).show();
+//        NotificationCompat.Builder mBuilder =
+//                new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.notification_icon)
+//                        .setContentTitle("My notification")
+//                        .setContentText("Hello World!");
+
     }
 
     @Override
@@ -230,12 +253,15 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
 
     @Override
     public void changedFloor(int i, String s) {
-
+        // the floors are saved the other way around, so we look at size-1-i, to get the index backwards
+        showToast("changed Floor:" + i + " " + s + " to " + floors.get(floors.size()-1-i).toString());
+        SurfaceState surface_State = surfaceBuilder.getSurfaceState();
+        surface_State.setFloor(floors.get(floors.size()-1-i));
     }
 
     @Override
     public void enteredZones(List<Zone> list) {
-        if (zoneListChanged(list)) {
+        if (zoneListChanged(list) && false) {
             for (Zone zone : list) {
                 String zoneMessage = "Zone name: " + zone.getName() +
                         "\nZone ID: " + zone.getId() +
@@ -300,5 +326,37 @@ public class IndoorsActivity extends AppCompatActivity implements IndoorsLocatio
         currentToast.setText(text);
         currentToast.setDuration(Toast.LENGTH_LONG);
         currentToast.show();
+    }
+
+    public void updateFloorList(Building building) {
+        // update floor list if fragment is visible
+        if (floorSelectionFragment != null) {
+            floorSelectionFragment.updateFloors(building);
+        }
+    }
+
+    @Override
+    public void onFloorSelected(Floor floor) {
+        String message = null;
+
+        if (floor == null) {
+            message = getText(R.string.automatic_floor_selected).toString();
+            custom_Surface_State.autoSelect = true;
+
+            if (custom_Surface_State.lastFloorLevelSelectedByLibrary != SurfaceState.NO_FLOOR_SELECTED_BY_LIBRARY) {
+                custom_Surface_State.setFloor(custom_Surface_State.building
+                        .getFloorByLevel(custom_Surface_State.lastFloorLevelSelectedByLibrary));
+            }
+        } else {
+            message = new StringBuilder(getString(R.string.floor)).append(" '")
+                    .append(floor.getName()).append("' ").append(getString(R.string.selected))
+                    .toString();
+            custom_Surface_State.autoSelect = false;
+            custom_Surface_State.setFloor(floor);
+            //checkVisibilityOfMenuItems();
+        }
+
+        // Print selection to screen.
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }
